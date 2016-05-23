@@ -1,0 +1,9 @@
+
+# npm specific files
+node_modules
+npm-debug.log
+
+# Mac specific files
+.DS_Store
+
+
