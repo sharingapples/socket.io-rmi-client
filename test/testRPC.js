@@ -2,15 +2,15 @@
 
 const expect = require('chai').expect;
 const sinon = require('sinon');
-const io = require('socket.io');
-const ServerInstance = require('../lib/server/ServerInstance');
-const ClientInterface = require('../lib/client/ClientInterface');
-const RemoteListener = require('../lib/client/RemoteListener');
+const Server = require('socket.io-rpc-server');
+const Client = require('../');
 
 const testApp = require('http').createServer((req, res) => {
   res.writeHead(200);
   res.end('socket.io-rpc test http server');
 });
+const io = require('socket.io')(testApp);
+const clientIO = require('socket.io-client');
 
 class TestClass {
   rpcMethod1() {
@@ -44,14 +44,15 @@ const actionMap = {
 actionMap.getAnotherInstance = actionMap;
 
 // Start the server application
-ServerInstance.start(testApp, new TestClass(), actionMap);
+Server.start(io, new TestClass(), actionMap);
+
 testApp.listen(0, () => {
   const port = testApp.address().port;
   console.log('Listening at port ', port);
 
   describe('Simple RPC calls', function () {
     it('checks server side call', function () {
-      return ClientInterface.connect('ws://localhost:' + port).then(instance => (
+      return Client.connect(clientIO, 'ws://localhost:' + port).then(instance => (
         Promise.all([
           instance.rpcMethod1(),
           instance.rpcMethod2(1, 5),
@@ -67,6 +68,8 @@ testApp.listen(0, () => {
     });
 
     const listener = {
+      isEventHandler: true,
+
       onTestEvent: function (p1, p2, p3) {
         console.log('onTestEvent invoked');
       },
@@ -82,17 +85,17 @@ testApp.listen(0, () => {
       },
     };
 
-    it('checks if RemoteListener is created correctly or not', function () {
-      const r = new RemoteListener(listener);
-      expect(r.events.length).to.equal(2);
-      expect(r.events[0]).to.equal('onTestEvent');
-      expect(r.events[1]).to.equal('onTestEvent2');
-    });
+    // it('checks if RemoteEventHandler is created correctly or not', function () {
+    //   const r = new RemoteEventHandler(listener);
+    //   expect(r.events.length).to.equal(2);
+    //   expect(r.events[0]).to.equal('onTestEvent');
+    //   expect(r.events[1]).to.equal('onTestEvent2');
+    // });
 
     it('checks call with hook parameters', function () {
       const url = 'ws://localhost:' + port;
-      return ClientInterface.connect(url).then(instance => (
-        instance.addHook('test', new RemoteListener(listener)).then(res => {
+      return Client.connect(clientIO, url).then(instance => (
+        instance.addHook('test', listener).then(res => {
           const mockListener = sinon.mock(listener);
           mockListener.expects('onTestEvent').once().withArgs(1, 2, 3);
           expect(res).to.equal('test');
@@ -105,7 +108,7 @@ testApp.listen(0, () => {
 
     it('checks for server instance return type', function () {
       const url = 'ws://localhost:' + port;
-      return ClientInterface.connect(url).then(instance => (
+      return Client.connect(clientIO, url).then(instance => (
         instance.getAnotherInstance().then(anotherInstance => (
           Promise.all([
             anotherInstance.rpcMethod1(),

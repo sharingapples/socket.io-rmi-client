@@ -7,12 +7,18 @@
     "test": "./node_modules/.bin/mocha --reporter spec --delay"
   },
   "author": "Ranjan Shrestha",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sharingapples/socket.io-rpc-client.git"
+  },
   "license": "MIT",
   "devDependencies": {
     "chai": "^3.5.0",
     "mocha": "^2.4.5",
-    "sinon": "^1.17.4"
+    "sinon": "^1.17.4",
+    "socket.io-rpc-server": "^0.1.1"
   },
   "dependencies": {
+    "socket.io-rpc-common": "^1.0.1"
   }
 }
