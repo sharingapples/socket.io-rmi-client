@@ -1,7 +1,7 @@
 {
-  "name": "socket.io-rpc-client",
-  "version": "0.1.0",
-  "description": "RPC client using socket.io",
+  "name": "socket.io-rmi-client",
+  "version": "0.0.0",
+  "description": "RMI client using socket.io",
   "main": "index.js",
   "files": [
     "lib"
@@ -19,9 +19,9 @@
     "chai": "^3.5.0",
     "mocha": "^2.4.5",
     "sinon": "^1.17.4",
-    "socket.io-rpc-server": "^0.1.1"
+    "socket.io-rmi-server": "^1.0.0"
   },
   "dependencies": {
-    "socket.io-rpc-common": "^1.0.1"
+    "socket.io-rmi": "^1.0.0"
   }
 }

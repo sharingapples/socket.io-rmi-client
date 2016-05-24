@@ -2,12 +2,12 @@
 
 const expect = require('chai').expect;
 const sinon = require('sinon');
-const Server = require('socket.io-rpc-server');
+const Server = require('socket.io-rmi-server');
 const Client = require('../');
 
 const testApp = require('http').createServer((req, res) => {
   res.writeHead(200);
-  res.end('socket.io-rpc test http server');
+  res.end('socket.io-rmi test http server');
 });
 const io = require('socket.io')(testApp);
 const clientIO = require('socket.io-client');
