@@ -5,7 +5,7 @@ const RemoteEventHandler = require('./RemoteEventHandler');
 
 class EventHandler {
   constructor() {
-  
+
   }
 }
 
