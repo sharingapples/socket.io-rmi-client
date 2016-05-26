@@ -1,2 +1,2 @@
 
-module.exports = require('./lib/ClientInterface');
+module.exports = require('./src/ClientInterface');
