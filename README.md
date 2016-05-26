@@ -10,7 +10,7 @@ $ npm install --save socket.io-client
 
 #### Directly using within the browser with script tag
 Download the javascript files `socket.io-rmi-client.js` or its minified version `socket.io-rmi-client.min.js` available within the `umd` folder
-in the download .tar.gz file.
+in the downloaded `.tgz` file.
 
 You will also need to download `socket.io-client` files separately
 
