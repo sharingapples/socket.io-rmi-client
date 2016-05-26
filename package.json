@@ -16,8 +16,8 @@
     "build": "npm run build-cjs && npm run build-es6",
     "build-cjs": "rimraf lib && cross-env BABEL_ENV=cjs babel ./src -d lib",
     "build-es6": "rimraf es6 && cross-env BABEL_ENV=es babel ./src -d es6",
-    "build-umd": "cross-env BABEL_ENV=cjs NODE_ENV=development webpack index.js umd/socket.io-rmi-client.js",
-    "build-min": "cross-env BABEL_ENV=cjs NODE_ENV=production webpack -p index.js umd/socket.io-rmi-client.min.js"
+    "build-umd": "cross-env BABEL_ENV=cjs NODE_ENV=development webpack ./src/index.js umd/socket.io-rmi-client.js",
+    "build-min": "cross-env BABEL_ENV=cjs NODE_ENV=production webpack -p ./src/index.js umd/socket.io-rmi-client.min.js"
   },
   "author": "Ranjan Shrestha",
   "repository": {
