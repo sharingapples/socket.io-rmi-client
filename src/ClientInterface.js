@@ -4,7 +4,9 @@ const Common = require('socket.io-rmi');
 const RemoteEventHandler = require('./RemoteEventHandler');
 
 class EventHandler {
-
+  constructor() {
+  
+  }
 }
 
 class ClientInterface {
