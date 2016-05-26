@@ -3,8 +3,12 @@ const Common = require('socket.io-rmi');
 
 class RemoteEventHandler {
   constructor(socket, namespace, target) {
+    // bugfix. Object.keys was being used previously, but that was not able to
+    // get the method names declared in the class
+    const props = Object.getOwnPropertyNames(Object.getPrototypeOf(target));
+
     // Get the list of events available on the target that can be called
-    const events = Object.keys(target).filter(name => (
+    const events = props.filter(name => (
       name.startsWith('on') && typeof target[name] === 'function'
     ));
 
