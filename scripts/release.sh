@@ -48,3 +48,8 @@ git tag latest -f
 
 git push origin $next_ref
 git push origin latest -f
+
+npm run build
+npm run build-umd
+npm run build-cjs
+npm publish
