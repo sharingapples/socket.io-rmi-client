@@ -3,6 +3,10 @@
 const Common = require('socket.io-rmi');
 const RemoteEventHandler = require('./RemoteEventHandler');
 
+class EventHandler {
+
+}
+
 class ClientInterface {
   constructor(socket, namespace, actions) {
     actions.forEach(name => {
@@ -19,7 +23,7 @@ class ClientInterface {
                 // the function arguments are called back, make sure the server
                 // also uses the same argument signature
                 args[index] = new RemoteCallback(socket, namespace);
-              } else if (typeof arg === 'object' && arg.isEventHandler) {
+              } else if (arg instanceof EventHandler) {
                 // Check if the argument is an event handler, in which case we need
                 // to create remote listener to handle the remote events
                 args[index] = new RemoteEventHandler(socket, namespace, arg);
@@ -88,5 +92,7 @@ ClientInterface.connect = function (io, url) {
     });
   });
 };
+
+ClientInterface.EventHandler = EventHandler;
 
 module.exports = ClientInterface;
