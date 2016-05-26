@@ -6,4 +6,11 @@ npm-debug.log
 # Mac specific files
 .DS_Store
 
-
+######################################
+# Build files
+# CommonJS modules
+lib
+# ES6 for next generation js
+es6
+# UMD modules for use in browsers with <script>
+umd
