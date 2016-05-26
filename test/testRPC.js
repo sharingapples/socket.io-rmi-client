@@ -3,7 +3,7 @@
 const expect = require('chai').expect;
 const sinon = require('sinon');
 const Server = require('socket.io-rmi-server');
-const Client = require('../');
+const Client = require('../src/index');
 
 const testApp = require('http').createServer((req, res) => {
   res.writeHead(200);
@@ -35,6 +35,26 @@ class TestClass {
   }
 }
 
+class EventHandler extends Client.EventHandler {
+  constructor() {
+    super();
+
+    // Test property that shouldn't be send over
+    this.onAbsurd = false;
+  }
+
+  onTestEvent (p1, p2, p3) {
+    console.log('onTestEvent invoked');
+  }
+
+  onTestEvent2 (p1) {
+    console.log('onTestEvent2 invoked');
+  }
+
+  absurdFunc () {
+
+  }
+}
 const actionMap = {
   rpcMethod1: 'number',
   rpcMethod2: 'number',
@@ -67,23 +87,7 @@ testApp.listen(0, () => {
       ));
     });
 
-    const listener = {
-      isEventHandler: true,
-
-      onTestEvent: function (p1, p2, p3) {
-        console.log('onTestEvent invoked');
-      },
-
-      onTestEvent2: function (p1) {
-        console.log('onTestEvent2 invoked');
-      },
-
-      onAbsurd: false,
-
-      absurdFunc: function () {
-
-      },
-    };
+    const listener = new EventHandler();
 
     // it('checks if RemoteEventHandler is created correctly or not', function () {
     //   const r = new RemoteEventHandler(listener);
