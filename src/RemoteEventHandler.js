@@ -12,6 +12,14 @@ class RemoteEventHandler {
       name.startsWith('on') && typeof target[name] === 'function'
     ));
 
+    // Also push in the names available as keys
+    Object.keys(target).forEach(name => {
+      if (name.startsWith('on') && typeof target[name] === 'function'
+          && events.indexOf(name) === -1) {
+        events.push(name);
+      }
+    });
+
     Object.defineProperty(this, 'namespace', { value: namespace });
     Object.defineProperty(this, 'events', { value: events });
 
