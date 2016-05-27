@@ -64,7 +64,7 @@ const actionMap = {
 actionMap.getAnotherInstance = actionMap;
 
 // Start the server application
-Server.start(io, new TestClass(), actionMap);
+Server.start(io, TestClass, actionMap);
 
 testApp.listen(0, () => {
   const port = testApp.address().port;
@@ -72,19 +72,21 @@ testApp.listen(0, () => {
 
   describe('Simple RPC calls', function () {
     it('checks server side call', function () {
-      return Client.connect(clientIO, 'ws://localhost:' + port).then(instance => (
-        Promise.all([
-          instance.rpcMethod1(),
-          instance.rpcMethod2(1, 5),
-          instance.rpcMethod1(),
-          instance.rpcMethod2(6, 9),
-        ]).then(res => {
-          expect(res[0]).to.equal(1);
-          expect(res[1]).to.equal(6);
-          expect(res[2]).to.equal(1);
-          expect(res[3]).to.equal(15);
-        })
-      ));
+      return new Promise((resolve, reject) => {
+        Client.connect(clientIO, 'ws://localhost:' + port).onConnected = (instance) => {
+          resolve(Promise.all([
+            instance.rpcMethod1(),
+            instance.rpcMethod2(1, 5),
+            instance.rpcMethod1(),
+            instance.rpcMethod2(6, 9),
+          ]).then(res => {
+            expect(res[0]).to.equal(1);
+            expect(res[1]).to.equal(6);
+            expect(res[2]).to.equal(1);
+            expect(res[3]).to.equal(15);
+          }));
+        };
+      });
     });
 
     const listener = new EventHandler();
@@ -98,35 +100,54 @@ testApp.listen(0, () => {
 
     it('checks call with hook parameters', function () {
       const url = 'ws://localhost:' + port;
-      return Client.connect(clientIO, url).then(instance => (
-        instance.addHook('test', listener).then(res => {
-          const mockListener = sinon.mock(listener);
-          mockListener.expects('onTestEvent').once().withArgs(1, 2, 3);
-          expect(res).to.equal('test');
-          return instance.callHook('onTestEvent', 1, 2, 3).then(res => {
-            mockListener.verify();
-          });
-        })
-      ));
+      return new Promise((resolve, reject) => {
+        Client.connect(clientIO, url).onConnected = (instance) => {
+          resolve(instance.addHook('test', listener).then(res => {
+            const mockListener = sinon.mock(listener);
+            mockListener.expects('onTestEvent').once().withArgs(1, 2, 3);
+            expect(res).to.equal('test');
+            return instance.callHook('onTestEvent', 1, 2, 3).then(res => {
+              mockListener.verify();
+            });
+          }));
+        };
+      });
+    });
+
+    it('checks for disconnect event', function () {
+      const url = 'ws://localhost:' + port;
+      return new Promise((resolve, reject) => {
+        const res = Client.connect(clientIO, url);
+        res.onConnected = function (instance) {
+          expect(instance).to.not.equal(null);
+          res.disconnect();
+        };
+
+        res.onDisconnected = function () {
+          resolve(true);
+        };
+      });
     });
 
     it('checks for server instance return type', function () {
       const url = 'ws://localhost:' + port;
-      return Client.connect(clientIO, url).then(instance => (
-        instance.getAnotherInstance().then(anotherInstance => (
-          Promise.all([
-            anotherInstance.rpcMethod1(),
-            anotherInstance.rpcMethod2(6, 8),
-            instance.rpcMethod1(),
-            instance.rpcMethod2(3, -8),
-          ]).then(res => {
-            expect(res[0]).to.equals(1);
-            expect(res[1]).to.equals(14);
-            expect(res[2]).to.equals(1);
-            expect(res[3]).to.equals(-5);
-          })
-        ))
-      ));
+      return new Promise((resolve, reject) => {
+        Client.connect(clientIO, url).onConnected = (instance) => {
+          resolve(instance.getAnotherInstance().then(anotherInstance => (
+            Promise.all([
+              anotherInstance.rpcMethod1(),
+              anotherInstance.rpcMethod2(6, 8),
+              instance.rpcMethod1(),
+              instance.rpcMethod2(3, -8),
+            ]).then(res => {
+              expect(res[0]).to.equals(1);
+              expect(res[1]).to.equals(14);
+              expect(res[2]).to.equals(1);
+              expect(res[3]).to.equals(-5);
+            })
+          )));
+        };
+      });
     });
   });
 
