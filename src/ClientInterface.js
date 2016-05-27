@@ -4,9 +4,7 @@ const Common = require('socket.io-rmi');
 const RemoteEventHandler = require('./RemoteEventHandler');
 
 class EventHandler {
-  constructor() {
 
-  }
 }
 
 class ClientInterface {
@@ -48,51 +46,69 @@ class ClientInterface {
 }
 
 ClientInterface.connect = function (io, url) {
-  return new Promise((resolve, reject) => {
-    const socket = io(url, {
+  const res = { };
+  let socket = null;
+
+  res.disconnect = function () {
+    socket.close();
+  };
+
+  const connect = function () {
+    socket = io(url, {
       jsonp: false,
     });
 
-    let serverInstance = null;
     // A custom event sent by the server
     socket.on(Common.EVENT_CONNECTED, instance => {
-      serverInstance = new ClientInterface(socket, instance.namespace, instance.actions);
-      resolve(serverInstance);
+      const serverInstance = new ClientInterface(socket, instance.namespace, instance.actions);
+      if (typeof res.onConnected === 'function') {
+        res.onConnected(serverInstance);
+      } else {
+        console.error('The onConnected callback is not defined');
+      }
+    });
+
+    socket.on('disconnect', () => {
+      // Clear out the existing socket
+      socket.close();
+
+      if (typeof res.onDisconnected === 'function') {
+        res.onDisconnected();
+      } else {
+        console.error('The onDisconnected callback is not defined.');
+      }
+      
+      // Try to reconnect
+      connect();
     });
 
     socket.on(Common.EVENT_ERROR, error => {
-      if (serverInstance === null) {
-        // The error occured while tyring to connect to the server, so just
-        // reject this promise
-        reject(error);
+      // The error occured some other place during a method invokation,
+      if (typeof res.onError === 'function') {
+        res.onError(error);
       } else {
-        // The error occured some other place during a method invokation,
-        if (typeof serverInstance.onError === 'function') {
-          serverInstance.onError(error);
-        } else {
-          console.error('An error occurred in socket.io-rmi-client', error);
-          console.error('No error handler declared to handle the error.',
-                        'Define a function named `onError` on the interface',
-                        'provided after the remote connection to handle this error');
-        }
+        console.error('An error occurred in socket.io-rmi-client', error);
+        console.error('No error handler declared to handle the error.',
+                      'Define a function named `onError` on the interface',
+                      'provided after the remote connection to handle this error');
       }
     });
 
     socket.on('error', (error) => {
-      if (serverInstance === null) {
-        reject(error);
+      if (typeof res.onError === 'function') {
+        res.onError(error);
       } else {
-        if (typeof serverInstance.onError === 'function') {
-          serverInstance.onError(error);
-        } else {
-          console.error('An error occurred in socket.io-rmi-client', error);
-          console.error('No error handler declared to handle the error.',
-                        'Define a function named `onError` on the interface',
-                        'provided after the remote connection to handle this error');
-        }
+        console.error('An error occurred in socket.io-rmi-client', error);
+        console.error('No error handler declared to handle the error.',
+                      'Define a function named `onError` on the interface',
+                      'provided after the remote connection to handle this error');
       }
     });
-  });
+  };
+
+  connect();
+
+  return res;
 };
 
 ClientInterface.EventHandler = EventHandler;
