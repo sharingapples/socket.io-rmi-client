@@ -24,11 +24,12 @@ You will also need to download `socket.io-client` files separately
 import Client from 'socket.io-rmi-client';
 import io from 'socket.io-client';
 
-Client.connect(io, 'ws://server:port').then(instance => {
+const res = Client.connect(io, 'ws://server:port');
+res.onConnected = instance => {ping
 
   // Simple RMI calls, return's their result through Promise
   instance.rmiMethod1().then(res => {
-
+    
   });
 
   // The RMI calls can also include callbacks that are invoked by the
