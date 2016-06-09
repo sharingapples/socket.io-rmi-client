@@ -52,4 +52,4 @@ git push origin latest -f
 npm run build
 npm run build-umd
 npm run build-cjs
-npm publish
+npm publish --registry https://registry.npmjs.org/
