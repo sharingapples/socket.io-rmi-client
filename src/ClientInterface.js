@@ -45,6 +45,15 @@ class ClientInterface {
   }
 }
 
+/**
+ * Create a event handler instance that could be passed on a RPC call
+ * @return {EventHandler} An event handler instance on which event callbacks
+ *                        should be defined.
+ */
+ClientInterface.createEventHandler = function () {
+  return new EventHandler();
+};
+
 ClientInterface.connect = function (io, url) {
   const res = { };
   let socket = null;
@@ -77,7 +86,7 @@ ClientInterface.connect = function (io, url) {
       } else {
         console.error('The onDisconnected callback is not defined.');
       }
-      
+
       // Try to reconnect
       connect();
     });

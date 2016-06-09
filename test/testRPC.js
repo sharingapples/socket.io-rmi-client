@@ -89,8 +89,6 @@ testApp.listen(0, () => {
       });
     });
 
-    const listener = new EventHandler();
-
     // it('checks if RemoteEventHandler is created correctly or not', function () {
     //   const r = new RemoteEventHandler(listener);
     //   expect(r.events.length).to.equal(2);
@@ -99,6 +97,35 @@ testApp.listen(0, () => {
     // });
 
     it('checks call with hook parameters', function () {
+      const listener = new EventHandler();
+      const url = 'ws://localhost:' + port;
+      return new Promise((resolve, reject) => {
+        Client.connect(clientIO, url).onConnected = (instance) => {
+          resolve(instance.addHook('test', listener).then(res => {
+            const mockListener = sinon.mock(listener);
+            mockListener.expects('onTestEvent').once().withArgs(1, 2, 3);
+            expect(res).to.equal('test');
+            return instance.callHook('onTestEvent', 1, 2, 3).then(res => {
+              mockListener.verify();
+            });
+          }));
+        };
+      });
+    });
+
+    // it('checks if RemoteEventHandler is created correctly or not', function () {
+    //   const r = new RemoteEventHandler(listener);
+    //   expect(r.events.length).to.equal(2);
+    //   expect(r.events[0]).to.equal('onTestEvent');
+    //   expect(r.events[1]).to.equal('onTestEvent2');
+    // });
+
+    it('checks call with EventHandler parameter', function () {
+      const listener = Client.createEventHandler();
+      listener.onTestEvent = function (p1, p2, p3) {
+        // Dummy event callback
+      };
+
       const url = 'ws://localhost:' + port;
       return new Promise((resolve, reject) => {
         Client.connect(clientIO, url).onConnected = (instance) => {
