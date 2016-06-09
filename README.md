@@ -105,4 +105,4 @@ RMIClient.connect(io, 'ws://localhost').onConnected = function (instance) {
 
 ### More Documentation
 For further more documentation and use cases, check out the
-[RMI Server](https://github.com/sharingpples/socket.io-rmi-server).
+[RMI Server](https://github.com/sharingapples/socket.io-rmi-server).
