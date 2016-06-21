@@ -33,8 +33,12 @@ class ClientInterface {
 
           // Get the name of the method with namespace
           socket.emit(Common.eventName(namespace, name), args, (res) => {
-            if (res && typeof res === 'object' && res.type === Common.TYPE_REMOTE_INSTANCE) {
-              resolve(new ClientInterface(socket, res.namespace, res.actions));
+            if (res && typeof res === 'object') {
+              if (res.type === Common.TYPE_REMOTE_INSTANCE) {
+                resolve(new ClientInterface(socket, res.namespace, res.actions));
+              } else if (res.type === Common.EVENT_ERROR) {
+                reject(res.error);
+              }
             } else {
               resolve(res);
             }
