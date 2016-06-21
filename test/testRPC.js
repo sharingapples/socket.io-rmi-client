@@ -2,6 +2,7 @@
 
 const expect = require('chai').expect;
 const sinon = require('sinon');
+const Common = require('socket.io-rmi');
 const Server = require('socket.io-rmi-server');
 const Client = require('../src/index');
 
@@ -33,6 +34,14 @@ class TestClass {
   getAnotherInstance() {
     return new TestClass();
   }
+
+  callForSimpleError(a, b) {
+    throw new Error('Simple Error');
+  }
+
+  callForUncatchableError(a, b) {
+    throw new Common.UncatchableError('Error', 'An uncatchable Error');
+  }
 }
 
 class EventHandler extends Client.EventHandler {
@@ -60,6 +69,8 @@ const actionMap = {
   rpcMethod2: 'number',
   addHook: 'mixed',
   callHook: null,
+  callForSimpleError: null,
+  callForUncatchableError: null,
 };
 actionMap.getAnotherInstance = actionMap;
 
@@ -175,6 +186,31 @@ testApp.listen(0, () => {
           )));
         };
       });
+    });
+
+    it('checks for error handling', function () {
+      const url = 'ws://localhost:' + port;
+      return new Promise((resolve, reject) => {
+        Client.connect(clientIO, url).onConnected = (instance) => {
+          resolve(instance.callForSimpleError(1, 2).catch(err => {
+            expect(err.message).to.equal('Simple Error');
+          }));
+        };
+      });
+    });
+
+    it('checks for uncatchable error', function (done) {
+      const url = 'ws://localhost:' + port;
+      const client = Client.connect(clientIO, url);
+      client.onConnected = (instance) => {
+        instance.callForUncatchableError(1, 2);
+      };
+
+      client.onError = (err) => {
+        //console.log(err);
+        expect(err.message).to.equal('An uncatchable Error');
+        done();
+      };
     });
   });
 
