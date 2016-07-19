@@ -84,7 +84,8 @@ testApp.listen(0, () => {
   describe('Simple RPC calls', function () {
     it('checks server side call', function () {
       return new Promise((resolve, reject) => {
-        Client.connect(clientIO, 'ws://localhost:' + port).onConnected = (instance) => {
+        const client = Client.create(clientIO, 'ws://localhost:' + port);
+        client.onConnected = (instance) => {
           resolve(Promise.all([
             instance.rpcMethod1(),
             instance.rpcMethod2(1, 5),
@@ -97,6 +98,8 @@ testApp.listen(0, () => {
             expect(res[3]).to.equal(15);
           }));
         };
+
+        client.connect();
       });
     });
 
@@ -111,7 +114,8 @@ testApp.listen(0, () => {
       const listener = new EventHandler();
       const url = 'ws://localhost:' + port;
       return new Promise((resolve, reject) => {
-        Client.connect(clientIO, url).onConnected = (instance) => {
+        const conn = Client.create(clientIO, url);
+        conn.onConnected = (instance) => {
           resolve(instance.addHook('test', listener).then(res => {
             const mockListener = sinon.mock(listener);
             mockListener.expects('onTestEvent').once().withArgs(1, 2, 3);
@@ -121,6 +125,8 @@ testApp.listen(0, () => {
             });
           }));
         };
+
+        conn.connect();
       });
     });
 
@@ -139,7 +145,8 @@ testApp.listen(0, () => {
 
       const url = 'ws://localhost:' + port;
       return new Promise((resolve, reject) => {
-        Client.connect(clientIO, url).onConnected = (instance) => {
+        const conn = Client.create(clientIO, url);
+        conn.onConnected = (instance) => {
           resolve(instance.addHook('test', listener).then(res => {
             const mockListener = sinon.mock(listener);
             mockListener.expects('onTestEvent').once().withArgs(1, 2, 3);
@@ -149,13 +156,15 @@ testApp.listen(0, () => {
             });
           }));
         };
+
+        conn.connect();
       });
     });
 
     it('checks for disconnect event', function () {
       const url = 'ws://localhost:' + port;
       return new Promise((resolve, reject) => {
-        const res = Client.connect(clientIO, url);
+        const res = Client.create(clientIO, url);
         res.onConnected = function (instance) {
           expect(instance).to.not.equal(null);
           res.disconnect();
@@ -164,13 +173,16 @@ testApp.listen(0, () => {
         res.onDisconnected = function () {
           resolve(true);
         };
+
+        res.connect();
       });
     });
 
     it('checks for server instance return type', function () {
       const url = 'ws://localhost:' + port;
       return new Promise((resolve, reject) => {
-        Client.connect(clientIO, url).onConnected = (instance) => {
+        const conn = Client.create(clientIO, url);
+        conn.onConnected = (instance) => {
           resolve(instance.getAnotherInstance().then(anotherInstance => (
             Promise.all([
               anotherInstance.rpcMethod1(),
@@ -185,23 +197,28 @@ testApp.listen(0, () => {
             })
           )));
         };
+
+        conn.connect();
       });
     });
 
     it('checks for error handling', function () {
       const url = 'ws://localhost:' + port;
       return new Promise((resolve, reject) => {
-        Client.connect(clientIO, url).onConnected = (instance) => {
+        const conn = Client.create(clientIO, url);
+        conn.onConnected = (instance) => {
           resolve(instance.callForSimpleError(1, 2).catch(err => {
             expect(err.message).to.equal('Simple Error');
           }));
         };
+
+        conn.connect();
       });
     });
 
     it('checks for uncatchable error', function (done) {
       const url = 'ws://localhost:' + port;
-      const client = Client.connect(clientIO, url);
+      const client = Client.create(clientIO, url);
       client.onConnected = (instance) => {
         instance.callForUncatchableError(1, 2);
       };
@@ -211,6 +228,8 @@ testApp.listen(0, () => {
         expect(err.message).to.equal('An uncatchable Error');
         done();
       };
+
+      client.connect();
     });
   });
 
