@@ -119,7 +119,10 @@ ClientInterface.connect = function (io, url) {
     });
   };
 
-  connect();
+  // Changed the way the ClientInterface connect to make it work with localhost
+  // connections, the callbacks were being called instantly even before they
+  // got an oppertunity to be set.
+  setTimeout(connect, 1);
 
   return res;
 };
