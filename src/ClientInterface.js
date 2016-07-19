@@ -58,7 +58,7 @@ ClientInterface.createEventHandler = function () {
   return new EventHandler();
 };
 
-ClientInterface.connect = function (io, url) {
+ClientInterface.create = function (io, url) {
   const res = { };
   let socket = null;
 
@@ -66,7 +66,7 @@ ClientInterface.connect = function (io, url) {
     socket.close();
   };
 
-  const connect = function () {
+  res.connect = function () {
     socket = io(url, {
       jsonp: false,
     });
@@ -92,7 +92,7 @@ ClientInterface.connect = function (io, url) {
       }
 
       // Try to reconnect
-      connect();
+      res.connect();
     });
 
     socket.on(Common.EVENT_ERROR, error => {
@@ -118,11 +118,6 @@ ClientInterface.connect = function (io, url) {
       }
     });
   };
-
-  // Changed the way the ClientInterface connect to make it work with localhost
-  // connections, the callbacks were being called instantly even before they
-  // got an oppertunity to be set.
-  setTimeout(connect, 1);
 
   return res;
 };
