@@ -18,13 +18,13 @@ as well.
     $ npm install --save socket.io-client
     $ npm install --save socket.io-rmi-client
 
-#### UMD build through npmcdn
+#### UMD build through unpkg
 The UMD build of the library is available at
-[npmcdn](https://npmcdn.com/socket.io-rmi-client@1.0/umd/socket.io-rmi-client.min.js):
+[unpkg](https://unpkg.com/socket.io-rmi-client@1.0/umd/socket.io-rmi-client.min.js):
 
 ```html
 <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
-<script src="https://npmcdn.com/socket.io-rmi-client@1.0/umd/socket.io-rmi-client.min.js"></script>
+<script src="https://unpkg.com/socket.io-rmi-client@1.0/umd/socket.io-rmi-client.min.js"></script>
 ```
 
 ### Usage
